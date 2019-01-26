@@ -1,4 +1,4 @@
-import numpy as pnp
+import numpy as np
 from numpy_based_linear_regression import NumPyBasedLinearRegression
 from sklearn.datasets import make_regression
 from sklearn.model_selection import train_test_split
