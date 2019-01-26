@@ -116,7 +116,7 @@ class NumPyBasedLinearRegression(object):
     """
     def fit(self, X, Y_actual, learning_rate=0.001, iterations=1000, convergence_tolerance=0.001, batch_size=1, debug_mode=False, loss_plot_mode=True):
         # reconfigure the model setting
-        self.__n_x = n_x
+        self.__n_x = X.shape[0]
         self.__w = np.random.randn(self.__n_x, 1)
         self.__b = np.random.randn(1, 1)
         self.__mean_squared_errors = []
