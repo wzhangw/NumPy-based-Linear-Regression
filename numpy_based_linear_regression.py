@@ -43,6 +43,8 @@ class NumPyBasedLinearRegression(object):
                 print("Error: Y_predicted.shape != Y_actual.shape")
                 print("\tStack trace: NumPyBasedLinearRegression.__get_mean_squared_error()")
             return None
+        # find the number of examples m
+        m = Y_predicted.shape[1]
         # calculate mean squared error (MSE)
         mean_squared_error = (1 / m) * np.sum(np.square(Y_predicted - Y_actual))
         return mean_squared_error
