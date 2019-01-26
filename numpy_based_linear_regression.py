@@ -71,7 +71,7 @@ class NumPyBasedLinearRegression(object):
         dY = Y_predicted - Y_actual
         # calculate the gradients for the weights and the bias term
         dw = (1 / m) * np.dot(X, dY.T)
-        db = (1 / m) * np.sum(dY)
+        db = (1 / m) * np.sum(dY, axis=1).reshape(1, 1)
         return (dw, db)
 
     """
