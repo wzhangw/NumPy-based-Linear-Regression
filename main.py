@@ -4,7 +4,7 @@ from sklearn.datasets import make_regression
 from sklearn.model_selection import train_test_split
 
 def main(debug_mode=True, loss_plot_mode=True):
-    X, y = make_regression(n_samples=100, n_features=1, noise = 2)
+    X, y = make_regression(n_samples=100, n_features=3, noise = 2)
     X, y = np.asarray(X), np.asarray(y)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
     X_train, X_test, y_train, y_test = X_train.T, X_test.T, y_train.T.reshape((1, y_train.shape[0])), y_test.T.reshape((1, y_test.shape[0]))
