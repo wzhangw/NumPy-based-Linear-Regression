@@ -109,14 +109,14 @@ class NumPyBasedLinearRegression(object):
     @param X: the NumPy array of the input variables
     @param Y_actual: the NumPy array of the actual values of the output variable
     @param learning_rate: (optional) the speed of gradient descent; the default value is 0.001
-    @param iterations: (optional) the maximum number of iterations allowed; the default value is 1000
+    @param early_stopping_point: (optional) the maximum number of epoches allowed; the default value is 1000
     @param convergence_tolerance: (optional) the threshold to decide whether the gradient descent converges; the default value is 0.001
-    @param batch_size: the batch size of mini-batch gradient descent
+    @param batch_size: (optional) the batch size of mini-batch gradient descent; the default value is 1
     @param debug_mode: (optional) a boolean value that indicates whether the debug mode is active; the default value is false
     @param loss_plot_mode: (optional) a boolean value that indicates whether the loss plot mode is active; the default value is true
     @return a boolean value that indicates whether the fitting is successful
     """
-    def fit(self, X, Y_actual, learning_rate=0.001, iterations=1000, convergence_tolerance=0.001, batch_size=1, debug_mode=False, loss_plot_mode=True):
+    def fit(self, X, Y_actual, learning_rate=0.001, decay_rate=0.1, early_stopping_point=1000, convergence_tolerance=0.001, batch_size=1, debug_mode=False, loss_plot_mode=True):
         # reconfigure the model setting
         self.__n_x = X.shape[0]
         self.__w = np.random.randn(self.__n_x, 1)
@@ -136,26 +136,39 @@ class NumPyBasedLinearRegression(object):
             return False
         # allocate batches
         m = Y_actual.shape[1]
-        # iterations of gradient descent
-        for i in range(iterations):
+        num_batches = m // batch_size + (m % batch_size > 0)
+        X_batches = np.array_split(X, num_batches, axis=1)
+        Y_actual_batches = np.array_split(Y_actual, num_batches, axis=1)
+        # epoches of gradient descent
+        for epoch in range(early_stopping_point):
             # get the mean squared error (MSE) and add to fitting log
             Y_predicted = self.__get_Y_predicted(self.__w, X, self.__b, debug_mode=debug_mode)
             mean_squared_error = self.__get_mean_squared_error(Y_predicted=Y_predicted, Y_actual=Y_actual, debug_mode=debug_mode)
             if debug_mode:
-                print("Iteration " + str(i) + "\t | MSE = " + str(mean_squared_error))
+                print("Epoch " + str(epoch) + "\t MSE = " + str(mean_squared_error))
             self.__mean_squared_errors.append(mean_squared_error)
-            # check MSE against convergence tolerance
             if mean_squared_error < convergence_tolerance:
                 if debug_mode:
-                    print("Message: convergence_tolerance reached at iteration " + str(i))
+                    print("Message: convergence_tolerance reached at epoch " + str(epoch))
                     print("\tStack trace: NumPyBasedLinearRegression.fit()")
                 break
-            # get the gradients
-            dw, db = self.__get_gradients(Y_predicted=Y_predicted, Y_actual=Y_actual, X=X, debug_mode=debug_mode)
-            # update the parameters
-            self.__w, self.__b = self.__update_parameters(w=self.__w, b=self.__b, learning_rate=learning_rate, dw=dw, db=db, debug_mode=debug_mode)
+            # iterate through batches
+            for batch_id in range(num_batches):
+                # get the batch based on batch id
+                X_batch = X_batches[batch_id]
+                Y_actual_batch = Y_actual_batches[batch_id]
+                Y_predicted_batch = self.__get_Y_predicted(self.__w, X_batch, self.__b, debug_mode=debug_mode)
+                # get the gradients
+                dw, db = self.__get_gradients(Y_predicted=Y_predicted_batch, Y_actual=Y_actual_batch, X=X_batch, debug_mode=debug_mode)
+                # learning rate decay
+                decayed_learning_rate = (1 / (1 + decay_rate * epoch)) * learning_rate
+                # update the parameters
+                self.__w, self.__b = self.__update_parameters(w=self.__w, b=self.__b, learning_rate=decayed_learning_rate, dw=dw, db=db, debug_mode=debug_mode)
         if loss_plot_mode:
             plt.plot(self.__mean_squared_errors)
+            plt.title("NumPy-based Linear Regression, batch size = " + str(batch_size) + "\nErnest Xu")
+            plt.xlabel("Epoch")
+            plt.ylabel("Mean Squared Error")
             plt.show()
         return True
 
