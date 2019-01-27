@@ -13,7 +13,8 @@ class NumPyBasedLinearRegression(object):
         self.__n_x = None
         self.__w = None
         self.__b = None
-        self.__mean_squared_errors = None
+        self.__epoch_mean_squared_errors = None
+        self.__iterative_mean_squared_errors = None
 
     """
     Get the predicted values of the output variable
@@ -121,7 +122,8 @@ class NumPyBasedLinearRegression(object):
         self.__n_x = X.shape[0]
         self.__w = np.random.randn(self.__n_x, 1)
         self.__b = np.random.randn(1, 1)
-        self.__mean_squared_errors = []
+        self.__epoch_mean_squared_errors = []
+        self.__iterative_mean_squared_errors = []
         # check the number of features
         if X.shape[0] != self.__n_x:
             if debug_mode:
@@ -141,23 +143,26 @@ class NumPyBasedLinearRegression(object):
         Y_actual_batches = np.array_split(Y_actual, num_batches, axis=1)
         # epoches of gradient descent
         for epoch in range(early_stopping_point):
-            # get the mean squared error (MSE) and add to fitting log
+            # get the epoch mean squared error (MSE) and add to epoch fitting log
             Y_predicted = self.__get_Y_predicted(self.__w, X, self.__b, debug_mode=debug_mode)
-            mean_squared_error = self.__get_mean_squared_error(Y_predicted=Y_predicted, Y_actual=Y_actual, debug_mode=debug_mode)
+            epoch_mean_squared_error = self.__get_mean_squared_error(Y_predicted=Y_predicted, Y_actual=Y_actual, debug_mode=debug_mode)
             if debug_mode:
-                print("Epoch " + str(epoch) + "\t MSE = " + str(mean_squared_error))
-            self.__mean_squared_errors.append(mean_squared_error)
-            if mean_squared_error < convergence_tolerance:
+                print("Epoch " + str(epoch) + "\t MSE = " + str(epoch_mean_squared_error))
+            self.__epoch_mean_squared_errors.append(epoch_mean_squared_error)
+            if epoch_mean_squared_error < convergence_tolerance:
                 if debug_mode:
                     print("Message: convergence_tolerance reached at epoch " + str(epoch))
                     print("\tStack trace: NumPyBasedLinearRegression.fit()")
                 break
             # iterate through batches
-            for batch_id in range(num_batches):
-                # get the batch based on batch id
-                X_batch = X_batches[batch_id]
-                Y_actual_batch = Y_actual_batches[batch_id]
+            for batch_index in range(num_batches):
+                # get the batch based on batch index
+                X_batch = X_batches[batch_index]
+                Y_actual_batch = Y_actual_batches[batch_index]
+                # get the iterative mean squared error (MSE) and add to iterative fitting log
                 Y_predicted_batch = self.__get_Y_predicted(self.__w, X_batch, self.__b, debug_mode=debug_mode)
+                iterative_mean_squared_error = self.__get_mean_squared_error(Y_predicted=Y_predicted_batch, Y_actual=Y_actual_batch, debug_mode=debug_mode)
+                self.__iterative_mean_squared_errors.append(iterative_mean_squared_error)
                 # get the gradients
                 dw, db = self.__get_gradients(Y_predicted=Y_predicted_batch, Y_actual=Y_actual_batch, X=X_batch, debug_mode=debug_mode)
                 # learning rate decay
@@ -165,9 +170,16 @@ class NumPyBasedLinearRegression(object):
                 # update the parameters
                 self.__w, self.__b = self.__update_parameters(w=self.__w, b=self.__b, learning_rate=decayed_learning_rate, dw=dw, db=db, debug_mode=debug_mode)
         if loss_plot_mode:
-            plt.plot(self.__mean_squared_errors)
-            plt.title("NumPy-based Linear Regression, batch size = " + str(batch_size) + "\nErnest Xu")
+            # plot epoch mean squared errors
+            plt.plot(self.__epoch_mean_squared_errors)
+            plt.title("NumPy-based Linear Regression, batch size = " + str(batch_size) + "\nEpoch Mean Squared Error\nErnest Xu")
             plt.xlabel("Epoch")
+            plt.ylabel("Mean Squared Error")
+            plt.show()
+            # plot iterative mean squared errors
+            plt.plot(self.__iterative_mean_squared_errors)
+            plt.title("NumPy-based Linear Regression, batch size = " + str(batch_size) + "\nIterative Mean Squared Error\nErnest Xu")
+            plt.xlabel("Iteration")
             plt.ylabel("Mean Squared Error")
             plt.show()
         return True
