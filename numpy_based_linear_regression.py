@@ -154,7 +154,7 @@ class NumPyBasedLinearRegression(object):
             if debug_mode:
                 print("Epoch " + str(epoch) + "\t MSE = " + str(epoch_mean_squared_error))
             self.__epoch_mean_squared_errors.append(epoch_mean_squared_error)
-            if epoch_mean_squared_error < convergence_tolerance:
+            if epoch >= 2 and abs(self.__epoch_mean_squared_errors[-1] - self.__epoch_mean_squared_errors[-2]) < convergence_tolerance:
                 if debug_mode:
                     print("Message: convergence_tolerance reached at epoch " + str(epoch))
                     print("\tStack trace: NumPyBasedLinearRegression.fit()")
