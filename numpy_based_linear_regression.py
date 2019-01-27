@@ -243,6 +243,8 @@ class NumPyBasedLinearRegression(object):
         total_sum_of_squares = np.sum(np.square(Y_actual - Y_mean))
         # calculate the regression sum of squares
         regression_sum_of_squares = np.sum(np.square(Y_predicted - Y_mean))
+        # calculate the residual sum of squares
+        residual_sum_of_squares = np.sum(np.square(Y_predicted - Y_actual))
         # calculate the coefficient of determination
-        coefficient_of_determination = regression_sum_of_squares / total_sum_of_squares
+        coefficient_of_determination = 1 - residual_sum_of_squares / total_sum_of_squares
         return coefficient_of_determination
