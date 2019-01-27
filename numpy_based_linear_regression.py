@@ -10,10 +10,15 @@ class NumPyBasedLinearRegression(object):
     @return None
     """
     def __init__(self):
+        # the number of features
         self.__n_x = None
+        # the NumPy array of the weights
         self.__w = None
+        # the NumPay array of the bias term
         self.__b = None
+        # the log of epoch mean squared errors
         self.__epoch_mean_squared_errors = None
+        # the log of iterative mean squared errors
         self.__iterative_mean_squared_errors = None
 
     """
@@ -172,13 +177,13 @@ class NumPyBasedLinearRegression(object):
         if loss_plot_mode:
             # plot epoch mean squared errors
             plt.plot(self.__epoch_mean_squared_errors)
-            plt.title("NumPy-based Linear Regression, batch size = " + str(batch_size) + "\nEpoch Mean Squared Error\nErnest Xu")
+            plt.title("NumPy-based Linear Regression, batch size = " + str(batch_size) + "\nEpoch Mean Squared Errors\nErnest Xu")
             plt.xlabel("Epoch")
             plt.ylabel("Mean Squared Error")
             plt.show()
             # plot iterative mean squared errors
             plt.plot(self.__iterative_mean_squared_errors)
-            plt.title("NumPy-based Linear Regression, batch size = " + str(batch_size) + "\nIterative Mean Squared Error\nErnest Xu")
+            plt.title("NumPy-based Linear Regression, batch size = " + str(batch_size) + "\nIterative Mean Squared Errors\nErnest Xu")
             plt.xlabel("Iteration")
             plt.ylabel("Mean Squared Error")
             plt.show()
